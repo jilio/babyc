@@ -1,10 +1,33 @@
 #include <stdio.h>
 #include <json-c/json.h>
 
-int main(int argc, char **argv)
+char *load_file(char const *path)
 {
-  FILE *fp;
-  char buffer[1024];
+  char *buffer = 0;
+  long length;
+  FILE *f = fopen(path, "rb");
+
+  if (f)
+  {
+    fseek(f, 0, SEEK_END);
+    length = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    buffer = (char *)malloc((length + 1) * sizeof(char));
+    if (buffer)
+    {
+      fread(buffer, sizeof(char), length, f);
+    }
+    fclose(f);
+  }
+  buffer[length] = '\0';
+
+  return buffer;
+}
+
+int main(int argc, char *argv[])
+{
+  char *raw_json = load_file("test.json");
+
   struct json_object *parsed_json;
   struct json_object *name;
   struct json_object *age;
@@ -14,11 +37,7 @@ int main(int argc, char **argv)
 
   size_t i;
 
-  fp = fopen("test.json", "r");
-  fread(buffer, 1024, 1, fp);
-  fclose(fp);
-
-  parsed_json = json_tokener_parse(buffer);
+  parsed_json = json_tokener_parse(raw_json);
 
   json_object_object_get_ex(parsed_json, "name", &name);
   json_object_object_get_ex(parsed_json, "age", &age);
