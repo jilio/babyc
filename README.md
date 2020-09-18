@@ -1,3 +1,4 @@
 ```sh
-gcc test.c -o test
+brew install json-c
+gcc test.c -o test -ljson-c
 ```
